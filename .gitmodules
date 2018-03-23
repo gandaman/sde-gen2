@@ -1,0 +1,9 @@
+[submodule "materials/dlt-viewer"]
+	path = materials/dlt-viewer
+	url = https://github.com/GENIVI/dlt-viewer
+[submodule "materials/eclipse"]
+	path = materials/eclipse
+	url = https://github.com/GENIVI/eclipse_install_automation
+[submodule "materials/sdk"]
+	path = materials/sdk
+	url = https://github.com/GENIVI/genivi-dev-platform

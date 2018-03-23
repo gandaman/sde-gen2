@@ -47,6 +47,8 @@ COMPONENT="$(basename "$0")"
 ARTIFACTSDIR="$(readlink -f "$MYDIR/../artifacts/$COMPONENT")"
 MATERIALDIR="$(readlink -f "$MYDIR/../material/$COMPONENT")"
 
+
+
 # Note - this TMPDIR stays around. It means downloads are not repeated
 # if already done. However, for making an empty/unique dir might be safer.
 TMPDIR=/tmp/sdebuild

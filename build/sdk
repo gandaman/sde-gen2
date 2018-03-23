@@ -1,22 +1,38 @@
-#!/bin/sh
+#!/bin/sh -x
 
-COMPONENT=$(basename "$0")
-ARTIFACTS=artifacts/$COMPONENT
-WD="$PWD"
-D=$(dirname "$0") ; cd "$D" ; D="$PWD"
+# Copyright (C) 2018 GENIVI Alliance
+# LICENSE: MPLv2
 
-fail() {
-   echo "FAILED: " $@
-   echo "Stopping."
-   exit 1
+# Clean up artifacts if something failed, because Makefile uses artifacts
+# status to determine if there is something to do
+interrupted() {
+  echo interrupted...cleaning up
+  [ -n "$MYDIR" ] && cd "$MYDIR" || exit 3  # A bit of a safety check
+  rm -rf "$MYDIR/../artifacts/$COMPONENT"
+  exit 2
 }
 
-cd "$D/../material/$COMPONENT"
+fail() {
+  echo "Failed!"
+  echo "$@"
+  interrupted
+}
+
+# Clean up if interrupted
+trap interrupted 1 2 3 6
 
 if [ -z "$TARGET" ] ; then
    echo "\$TARGET not defined in environment - SDK can't be built!"
    exit 1
 fi
 
+MYDIR="$(readlink -f "$(dirname "$0")")"
+COMPONENT="$(basename "$0")"
+ARTIFACTSDIR="$(readlink -f "$MYDIR/../artifacts/$COMPONENT")"
+MATERIALDIR="$(readlink -f "$MYDIR/../material/$COMPONENT")"
+
+cd "$MATERIALDIR"
 export BUILD_SDK=true
-scripts/ci-build.sh CI_FLAG
+scripts/ci-build.sh CI_FLAG || fail "...during GDP Yocto build of SDK"
+
+rsync -a "$MATERIALDIR/gdp-src-build/tmp/deploy/sdk/*.sh" "$ARTIFACTSDIR/" || fail "...rsyncing results to artifacts dir"
