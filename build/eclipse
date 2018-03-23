@@ -1,0 +1,41 @@
+#!/bin/sh
+
+MATERIAL=eclipse
+ARTIFACTS=eclipse
+
+WD="$PWD"
+
+cleanup() {
+  cd "$WD"
+}
+
+trap cleanup SIGINT SIGTERM
+
+fail() {
+   echo "FAILED: " $@
+   echo "Stopping."
+   exit 1
+}
+
+chdir() { 
+  cd "$1" || fail "Can't cd from $PWD to $1 -- no such dir?" 
+}
+
+# Build
+chdir "material/$MATERIAL"
+
+export ECLIPSE_INSTALL_DIR="$PWD/result"
+export ECLIPSE_WORKSPACE_DIR="$PWD/workspace"
+
+rm -rf "$ECLIPSE_INSTALL_DIR"
+rm -rf "$ECLIPSE_WORKSPACE_DIR"
+
+set -e
+#./script.sh
+bash -x ./script.sh
+
+artifactspath="../../artifacts/$ARTIFACTS"
+mv result "$artifactspath"
+mv workspace "$artifactspath/.."
+
+cleanup

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+COMPONENT=$(basename "$0")
+ARTIFACTS=artifacts/$COMPONENT
+WD="$PWD"
+D=$(dirname "$0") ; cd "$D" ; D="$PWD"
+
+fail() {
+   echo "FAILED: " $@
+   echo "Stopping."
+   exit 1
+}
+
+cd "$D/../material/$COMPONENT"
+
+if [ -z "$TARGET" ] ; then
+   echo "\$TARGET not defined in environment - SDK can't be built!"
+   exit 1
+fi
+
+export BUILD_SDK=true
+scripts/ci-build.sh CI_FLAG

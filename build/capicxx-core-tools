@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# Copyright (C) 2018 GENIVI Alliance
+# License: MPLv2
+
+# The CommonAPI C++ Tooling is not built from source at this time, but simply
+# downloaded from released binaries.
+#
+# "Material" therefore only constitues a definition of which version to
+# download.  To make it _really_ simple, the whole URL is defined in the text
+# file.
+#
+# It's still useful to keep this is material/ directory since the Makefile
+# does dependency checking - i.e. it will make a new download & install if
+# the material information is updated - otherwise it will not do it
+# unnecessarily.
+
+# Clean up if interrupted
+trap interrupted 1 2 3 6
+
+# Must clean up artifacts if something failed, because Makefile uses it to
+# determine if there is "nothing to do"
+interrupted() {
+  echo interrupted...cleaning up
+  cd "$MYDIR"
+  rm -rf "../artifacts/qtcreator"
+  exit 2
+}
+
+fail() {
+  echo "Failed!"
+  echo "$@"
+  interrupted
+}
+
+# Annoyingly, there's no consistency to the binary name
+# so here's a little bit of magic.  Everything else is
+# generic.
+if [ -z "$ARCHIVE" ] ; then
+  ARCHIVE=commonapi-generator.zip
+fi
+
+MYDIR="$(readlink -f "$(dirname "$0")")"
+cd "$MYDIR" || fail "cd mydir $MYDIR"
+
+COMPONENT="$(basename "$0")"
+ARTIFACTSDIR="$(readlink -f "$MYDIR/../artifacts/$COMPONENT")"
+MATERIALDIR="$(readlink -f "$MYDIR/../material/$COMPONENT")"
+
+# Note - this TMPDIR stays around. It means downloads are not repeated
+# if already done. However, for making an empty/unique dir might be safer.
+TMPDIR=/tmp/sdebuild
+
+URL=$(cat "$MATERIALDIR/url")
+ARCHIVE=$(basename "$URL")
+
+mkdir -p "$TMPDIR" || fail "...creating TMPDIR $TMPDIR"
+cd "$TMPDIR" || fail "...moving to TMPDIR $TMPDIR"
+wget -c $URL
+unzip "$ARCHIVE" -d "$ARTIFACTSDIR"
+

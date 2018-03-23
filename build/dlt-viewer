@@ -1,0 +1,48 @@
+#!/bin/sh -x
+
+# Copyright (C) 2018 GENIVI Alliance
+# LICENSE: MPLv2
+
+
+# Clean up artifacts if something failed, because Makefile uses artifacts
+# status to determine if there is something to do
+interrupted() {
+  echo interrupted...cleaning up
+  [ -n "$MYDIR" ] && cd "$MYDIR" || exit 3  # A bit of a safety check
+  rm -rf "$MYDIR/../artifacts/$COMPONENT"
+  exit 2
+}
+
+fail() {
+  echo "Failed!"
+  echo "$@"
+  interrupted
+}
+
+# Clean up if interrupted
+trap interrupted 1 2 3 6
+
+MYDIR="$(readlink -f "$(dirname "$0")")"
+COMPONENT="$(basename "$0")"
+ARTIFACTSDIR="$(readlink -f "$MYDIR/../artifacts/$COMPONENT")"
+MATERIALDIR="$(readlink -f "$MYDIR/../material/$COMPONENT")"
+
+# Qt installed?  qmake exists?
+QMAKE=$(which qmake 2>/dev/null)
+if [ -z "$QMAKE" ] ; then
+   QMAKE=$(which qmake-qt5 2>/dev/null)
+fi
+
+if [ -z "$QMAKE" ] ; then
+   fail "No Qt installation?  (Could not find qmake or qmake-qt5 in path)"
+fi
+
+cd "$MATERIALDIR"
+$QMAKE BuildDltViewer.pro || fail "...while executing qmake"
+make -j8 || fail "...while executing make"
+
+# Store results
+cd "$MYDIR"
+mkdir -p "$ARTIFACTSDIR" || fail "mkdir ARTIFACTSDIR $ARTIFACTSDIR"
+rsync -a "$MATERIALDIR/release/" "$ARTIFACTSDIR" || fail "...rsyncing results to artifacts dir"
+

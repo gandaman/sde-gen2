@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# For now install qt via package manager.
+# (Instead using the latest qt from a downloaded package should be desirable
+# however)
+
+# Compilers, you always need them
+
+#apt-get install -y g++
+echo simulated apt-get install -y build-essential
+
+echo simulated apt-get install -y qt5-default
+echo simulated apt-get install -y qt5-qmake
+

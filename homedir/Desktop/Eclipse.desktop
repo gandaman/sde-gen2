@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Eclipse with Franca
+Name[en_US]=Eclipse with Franca
+Icon=/home/vagrant/gdp-sdk/eclipse/icon.xpm
+Exec=/home/vagrant/gdp-sdk/eclipse/eclipse -data /home/vagrant/gdp-sdk/workspace
+

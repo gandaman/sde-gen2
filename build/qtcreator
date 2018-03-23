@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Copyright (C) 2018 GENIVI Alliance
+# Copyright (C) 2017 Pelagicore AB
+# LICENSE: MPLv2
+
+# The GENIVI SDE gen 2 setup puts all build scripts in build/*
+# for consistency. However, to keep the connection with the scripts that are
+# reused from pelux-sde, instead of copying this script delegates the work to
+# the sde-cookbook.  (Also the cookbook scripts might be slightly modified,
+# but those changes can be traced back, merged, etc.)
+
+# Clean up if interrupted
+trap interrupted 1 2 3 6
+
+# Must clean up artifacts if something failed, because Makefile uses it to
+# determine if there is "nothing to do"
+interrupted() {
+  echo interrupted...cleaning up
+  # Not removing "$QT_CREATOR_INSTALL_DIR" here because if the variable was
+  # empty/corrupt, it would be a bit dangerous to dod rm -rf.
+  # This way should be fairly safe for most environments:
+  cd "$MYDIR"
+  rm -rf "../artifacts/qtcreator"
+  exit 2
+}
+
+fail() {
+  echo "Failed!"
+  echo "$@"
+  interrupted
+}
+
+
+QT_CREATOR_INSTALL_DIR="$(readlink -f "$(dirname "$0")/../artifacts/qtcreator")"
+MYDIR="$(readlink -f "$(dirname "$0")")"
+
+cd "$MYDIR" || fail "cd mydir $MYDIR"
+../sde-cookbook/qtcreator/install_qtcreator.sh "$QT_CREATOR_INSTALL_DIR" || fail "... on installation step"
+
+# CONFIGURE SDK IN QTCREATOR
+
+# Set variables needed by cookbook script
+case $TARGET in
+  minnowboard)
+    export ARCH=x86_64
+    ;;
+  raspberrypi2)
+    export ARCH=arm
+    ;;
+  raspberrypi3)
+    export ARCH=arm64
+    ;;
+  r-car-m3-starter-kit)
+    export ARCH=arm64
+    ;;
+  TODO)
+    export ARCH=x86
+    ;;
+  *)
+    fail "No known TARGET ($TARGET) -- did you define TARGET?"
+    ;;
+esac
+
+#cd "$MYDIR"
+# .... significantly more environment setup needed - to be fixed later
+#  ../sde-cookbook/qtcreator/configure-qtcreator.py "$QT_CREATOR_INSTALL_DIR/libexec/qtcreator/sdktool" || fail "... on configure sdk step"
+

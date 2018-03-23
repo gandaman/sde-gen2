@@ -1,0 +1,148 @@
+#!/bin/bash
+
+# (C) 2016 Gunnar Andersson
+# License: Your choice of GPLv2 or MPLv2
+# vim: ts=3 et sw=3
+
+
+# TODO: This should be fetched from a config file for each build
+
+#  type=git
+#  url=https://git.foo.org/bar.git
+
+fail() {
+   echo "*** FAILED ***   Error message follows:"
+   echo $@
+#   exit 1
+}
+
+chdir() { 
+  cd "$1" || fail "Can't cd from $PWD to $1 -- no such dir?" 
+}
+
+
+gitdir_exists()        { [ -d $1/.git ] ; }
+set_build_hash()       { mkdir -p artifacts/$1 ; echo "$2" >artifacts/$1/.build_hash ; }
+previous_build_hash()  { cat artifacts/$1/.build_hash 2>/dev/null ; }
+remove_build_hash()    { rm -f artifacts/$1/.build_hash ; }
+always_rebuild()       { [ $(cat artifacts/$1/.build_hash) == "always rebuild" ] ; }
+same_build_hash()      { [ "$(current_build_hash $1)" == "$(previous_build_hash $1)" ] ; }
+different_build_hash() { same_build_hash && return -1 ; return 0 ; }
+should_rebuild()       { different_build_hash $1 || always_rebuild $1 ; }
+get_type() {
+   if [ -d "material/$1" ] ; then
+      if gitdir_exists material/$1 ; then
+         echo git
+      else
+         echo UNSUPPORTED 
+      fi
+   else
+      echo NO_MATERIAL
+   fi
+}
+
+update_git() {
+   D="$PWD"
+   if gitdir_exists material/$1 ; then
+      echo "Cleaning and updating material/$1"
+      chdir material/$1 && \
+        git clean -fdx && \
+        git reset --hard && \
+        git reset origin/master --hard || fail "Could not update existing git repository in work/$1"
+        # TODO: Use submodule update instead
+   else
+      #git clone --recursive $2 material/$1 || fail "git clone fail for $1 from $2"
+      git submodule update --init material/$1 || fail "git submodule update fail for $1"
+   fi
+   chdir "$D"
+}
+
+argcheck() {
+  [ -z "$1" ] && fail "INTERNAL BUG: $(caller):${FUNCNAME[1]}\(\), no arg given"
+}
+
+current_build_hash() {
+   argcheck "$1"
+   if [ "$type" = "git" ] ; then
+      git_build_hash $1
+   else
+      fail "NOT YET IMPLEMENTED - non-git type : $type??"
+   fi
+}
+
+git_build_hash() {
+   D="$PWD"
+   chdir material/$1 || fail "git_build_hash: can't find git material dir in material/$1"
+   git rev-parse HEAD || fail "git_build_hash: can't git rev-parse"
+   chdir "$D"
+}
+
+build() {
+   echo "Building $1"
+   remove_build_hash $1
+   source build/$1 && set_build_hash $1 $(current_build_hash $1)
+}
+
+# MAIN BUILD LOOP
+
+components=$(ls build)
+
+buildheader() {
+  echo '----------------------------------------------------------------------------'
+  echo "--- BUILDING $1"
+  echo '----------------------------------------------------------------------------'
+}
+
+for component in $components; do 
+
+   buildheader $component
+
+   #TODO - set $type and $url variable for component
+   type=$(get_type $component)
+
+   if [ "$type" = "git" ] ; then
+      update_git $component $url
+   else
+      fail "NOT YET IMPLEMENTED - non-git type for $component: $type?"
+   fi
+
+   if should_rebuild $component ; then
+      build $component  # Note if one build fails, we still continue with the next here
+   else
+      echo "Skipping already done build $1. \(Remove artifacts/$1/.build_hash to force rebuild\)"
+   fi
+done
+
+# Is this needed?
+for component in artifacts/* ; do 
+   if valid_build $1 ; then
+#      echo Moving $1 from artifacts to done
+#      mv artifacts/$1
+      echo "Valid build in artifacts/$1 ..."
+   fi
+done
+
+echo "Done. Component results are now in artifacts/"
+
+exit 0
+
+# -----------------------
+#
+#
+#results in artifacts
+#   dlt-viewer
+#   eclipse
+#   qt
+#   ...
+#
+#touch artifacts/$dir/.build_done
+#add git hash to .build_done
+#add timestamp to .build_timestamp
+#
+#
+#VM creation:
+#rsync everything in static_files to $HOME
+#rsync everything in artifacts to $HOME
+#
+#
+#
