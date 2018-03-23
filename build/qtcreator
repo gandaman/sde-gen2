@@ -31,11 +31,11 @@ fail() {
   interrupted
 }
 
-
-QT_CREATOR_INSTALL_DIR="$(readlink -f "$(dirname "$0")/../artifacts/qtcreator")"
 MYDIR="$(readlink -f "$(dirname "$0")")"
+ARTIFACTSDIR="$(readlink -f "$(dirname "$0")/../artifacts/qtcreator")"
 
 cd "$MYDIR" || fail "cd mydir $MYDIR"
+QT_CREATOR_INSTALL_DIR="$ARTIFACTSDIR"
 ../sde-cookbook/qtcreator/install_qtcreator.sh "$QT_CREATOR_INSTALL_DIR" || fail "... on installation step"
 
 # CONFIGURE SDK IN QTCREATOR

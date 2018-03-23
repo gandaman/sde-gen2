@@ -35,4 +35,5 @@ cd "$MATERIALDIR"
 export BUILD_SDK=true
 scripts/ci-build.sh CI_FLAG || fail "...during GDP Yocto build of SDK"
 
+mkdir -p "$ARTIFACTSDIR"
 rsync -a "$MATERIALDIR/gdp-src-build/tmp/deploy/sdk/*.sh" "$ARTIFACTSDIR/" || fail "...rsyncing results to artifacts dir"

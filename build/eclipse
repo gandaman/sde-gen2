@@ -1,41 +1,55 @@
-#!/bin/sh
+#!/bin/sh -x
 
-MATERIAL=eclipse
-ARTIFACTS=eclipse
+# Copyright (C) 2018 GENIVI Alliance
+# LICENSE: MPLv2
 
-WD="$PWD"
+# Clean up if interrupted
+trap interrupted 1 2 3 6
 
-cleanup() {
-  cd "$WD"
+# Clean up artifacts if something failed, because Makefile uses artifacts
+# status to determine if there is something to do
+interrupted() {
+  echo interrupted...cleaning up
+  [ -n "$MYDIR" ] && cd "$MYDIR" || exit 3  # A bit of a safety check
+  rm -rf "$MYDIR/../artifacts/$COMPONENT"
+  rm -rf "$MYDIR/../tmp/$COMPONENT"
+  exit 2
 }
-
-trap cleanup SIGINT SIGTERM
 
 fail() {
-   echo "FAILED: " $@
-   echo "Stopping."
-   exit 1
+  echo "Failed!"
+  echo "$@"
+  interrupted
 }
 
-chdir() { 
-  cd "$1" || fail "Can't cd from $PWD to $1 -- no such dir?" 
+chdir() {
+  cd "$1" || fail "Can't cd from $PWD to $1 -- no such dir?"
 }
+
+COMPONENT="$(basename "$0")"
+MYDIR="$(readlink -f "$(dirname "$0")")"
+ARTIFACTSDIR="$(readlink -f "$MYDIR/../artifacts/$COMPONENT")"
+MATERIALDIR="$(readlink -f "$MYDIR/../material/$COMPONENT")"
+TMPDIR="$(readlink -f "$MYDIR/../tmp/$COMPONENT")"
 
 # Build
-chdir "material/$MATERIAL"
+chdir "$MATERIALDIR"
 
-export ECLIPSE_INSTALL_DIR="$PWD/result"
-export ECLIPSE_WORKSPACE_DIR="$PWD/workspace"
+export ECLIPSE_INSTALL_DIR="$TMPDIR/result"
+export ECLIPSE_WORKSPACE_DIR="$TMPDIR/workspace"
+rm -rf "$ECLIPSE_INSTALL_DIR" "$ECLIPSE_WORKSPACE_DIR"
 
-rm -rf "$ECLIPSE_INSTALL_DIR"
-rm -rf "$ECLIPSE_WORKSPACE_DIR"
+#./script.sh || fail "...executing main eclipse script"
+bash -x ./script.sh || fail "...executing main eclipse script"
 
-set -e
-#./script.sh
-bash -x ./script.sh
+# Check some of the artifacts
+[ -d "$TMPDIR/result/eclipse" ] || fail "...result dir missing after build"
+[ -x "$TMPDIR/result/eclipse/eclipse" ] || fail "...eclipse executable missing after build"
 
-artifactspath="../../artifacts/$ARTIFACTS"
-mv result "$artifactspath"
-mv workspace "$artifactspath/.."
+echo FIXME eclipse dirs - workspace goes where
+chdir "$TMPDIR"
+rm -rf "$ARTIFACTSDIR" || fail "...removing old ARTIFACTSDIR $ARTIFACTSDIR"
+mkdir -p "$ARTIFACTSDIR" || fail "...making ARTIFACTSDIR $ARTIFACTSDIR"
+mv result/eclipse "$ARTIFACTSDIR" || fail "...moving result/eclipse to artifacts"
+mv workspace "$ARTIFACTSDIR" || fail "...moving workspace to artifacts"
 
-cleanup
