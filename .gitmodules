@@ -4,3 +4,6 @@
 [submodule "material/eclipse"]
 	path = material/eclipse
 	url = https://github.com/GENIVI/eclipse_install_automation
+[submodule "material/sdk"]
+	path = material/sdk
+	url = https://github.com/GENIVI/genivi-dev-platform
