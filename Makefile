@@ -29,18 +29,25 @@ cleanall:
 
 
 # Helpers to allow doing just make "component" and simplify the all: target
-capicxx-core-tools:   artifacts/capicxx-core-tools
-capicxx-dbus-tools:   artifacts/capicxx-dbus-tools
-capicxx-someip-tools: artifacts/capicxx-someip-tools
-capicxx-wamp-tools:   artifacts/capicxx-wamp-tools
-d-feet:               artifacts/d-feet
-dlt-viewer:           artifacts/dlt-viewer
-eclipse:              artifacts/eclipse
-sdk:                  artifacts/sdk
-qt:                   artifacts/qt
-qtcreator:            artifacts/qtcreator
-sde:                  staging
+capicxx-core-tools:        artifacts/capicxx-core-tools
+capicxx-dbus-tools:        artifacts/capicxx-dbus-tools
+capicxx-someip-tools:      artifacts/capicxx-someip-tools
+capicxx-wamp-tools:        artifacts/capicxx-wamp-tools
+d-feet:                    artifacts/d-feet
+dlt-viewer:                artifacts/dlt-viewer
+eclipse:                   artifacts/eclipse
+sdk:                       artifacts/sdk
+qt:                        artifacts/qt
+qtcreator:                 artifacts/qtcreator
+sde:                       staging
+sdk/minnowboard:           artifacts/sdk/minnowboard
+sdk/raspberrypi2:          artifacts/sdk/raspberrypi2
+sdk/raspberrypi3:          artifacts/sdk/raspberrypi3
+sdk/dragonboard-410c:      artifacts/sdk/dragonboard-410c
+sdk/r-car-m3-starter-kit:  artifacts/sdk/r-car-m3-starter-kit
+sdk/r-car-h3-starter-kit:  artifacts/sdk/r-car-h3-starter-kit
 
+#dlt-viewer
 
 # Rules for how to build artifacts. Most of these just delegate
 # to build/<componentname>
@@ -80,9 +87,23 @@ artifacts/qt: material/qt
 artifacts/qtcreator:
 	build/qtcreator && touch $@
 
-artifacts/sdk: material/sdk
-	build/sdk && touch $@
+artifacts/sdk/dragonboard-410c:      material/dragonboard-410c
+	export TARGET=dragonboard-410c && build/sdk && touch $@
 
+artifacts/sdk/minnowboard: material/sdk
+	export TARGET=minnowboard && build/sdk && touch $@
+
+artifacts/sdk/raspberrypi2: material/sdk
+	export TARGET=raspberrypi2 && build/sdk && touch $@
+
+artifacts/sdk/raspberrypi3: material/sdk
+	export TARGET=raspberrypi3 && build/sdk && touch $@
+
+artifacts/sdk/r-car-m3-starter-kit: material/sdk
+	export TARGET=r-car-m3-starter-kit && build/sdk && touch $@
+
+artifacts/sdk/r-car-h3-starter-kit: material/sdk
+	export TARGET=r-car-h3-starter-kit && build/sdk && touch $@
 
 #dlt-viewer: ../artifacts/dlt-viewer
 #	./dlt-viewer
