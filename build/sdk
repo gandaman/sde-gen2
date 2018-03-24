@@ -33,6 +33,8 @@ MATERIALDIR="$(readlink -f "$MYDIR/../material/$COMPONENT")"
 
 cd "$MATERIALDIR"
 export BUILD_SDK=true
+export REUSE_STANDARD_DL_DIR=false
+export REUSE_STANDARD_SSTATE_DIR=false
 export SGX_DRIVERS=  # (Gen 2 not supported)
 export SGX_GEN_3_DRIVERS="$(readlink -f "$MYDIR/../material/r-car-sgx-binaries/")"
 scripts/ci-build.sh CI_FLAG || fail "...during GDP Yocto build of SDK"
