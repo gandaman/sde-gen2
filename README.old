@@ -1,0 +1,119 @@
+
+SDE (Software Development Environment)
+======================================
+
+This is generation 2 of the SDE
+
+Principles
+----------
+
+The previous generation contained scripted instructions for the *final
+assembly* of GDP SDE as a virtual machine image for VirtualBox.
+But since we use [Go.CD](http://go.cd) to automate the build, many aspects
+of the instructions for creation of the content were inside of Go and not
+in the script.   This was necessary to build the parts incrementally and
+have an efficient pipeline where only that which needed rebuilding was
+rebuilt (and was triggered for rebuild automatically by the CI pipelines,
+without rebuilding the whole world every time).
+
+The downside was that it was inflexible having instructions in multiple
+places, the SDE could not easily be built outside of the CI system, and
+other projects could not fork/modify/improve upon it.
+
+The intention of this setup is to meet the following criteria as described
+in a long-standing JIRA ticket on the subject.
+
+- 
+- 
+- 
+
+Building on your own
+--------------------
+
+To build any individual part :
+```
+$ make <partname> 
+```
+
+To build everything(probably *NOT* what you want to do, for example you will be building a full Yocto SDK for MANY platforms)
+```
+$ make
+```
+
+The setup is consistent and you can easily add your own targets by following
+the examples.  NOTE: Many parts depend on the component name being identical
+(build/script names, makefile targets, artifacts directory, etc.  Use the
+ exact same name everywhere and you should have little problems)
+
+Components (make targets)
+-------------------------
+
+Make sure to spell the make target exactly like this:
+
+- *capicxx-core-tools*
+Common API C++ core Code Generator
+- *capicxx-dbus-tools*
+Common API C++ Code Generator for D-Bus
+- *capicxx-someip-tools*
+Common API C++ Code Generator for SOME/IP
+- *capicxx-wamp-tools*
+Common API C++ Code Generator for WAMP (FIXME: not yet included)
+- *d-feet*
+D-Feet, the well known D-Bus monitoring/debugging tool
+- *dlt-viewer*
+Diagnostic Log and Trace Viewer
+- *eclipse*
+Eclipse with already installed packages for Franca, CommonAPI, CDT, Yocto development plugin, and more.
+- *sdk/minnowboard*
+- *sdk/dragonboard-410c*
+- *sdk/raspberrypi2
+- *sdk/raspberrypi3
+- *sdk/r-car-m3-starter-kit* (\* read special instructions)
+- *sdk/r-car-h3-starter-kit* (\* read special instructions)
+Yocto built Native-SDK for GDP for each target
+- *sdk*
+All SDK:s at once (FIXME: not implemented)
+- *qt*
+The Qt5 installation.  Note this is installed using apt-get package
+manager, and intended for the virtual machine build.  If you are running natively,
+you're better off installing Qt5 on your own using the appropriate distro
+tools.
+- *qtcreator*
+Qt Creator
+- *sde* 
+Build the VirtualBox VM image containing all tools.
+(FIXME - need to decide on appropriate SDK target...)
+
+
+OLD TEXT
+---------
+
+We build the final environment using multiple stages in a pipeline - for
+example, most of the tools are compiled by earlier stages or pipelines that
+feed into the final assembly pipeline.
+
+The purpose of this repo is therefore only to collect up what little steps remain and to automate the creation of the  virtual machine image.
+
+(An important reason to build the individual parts separately and not tied to this repository is that they
+may be usable in other configurations, or downloaded and installed locally on a host independent of any virtual machine)
+
+Purpose and content of this repo:
+
+* Except for major tool installtions, the content for the home directory (see below), such as
+** various .dotfiles and other such configuration
+** smaller helper scripts and binaries that were not part of earlier pipeline stages
+** other needed data, such as desktop wallpaper
+* Finally, a single shell script to execute apt-get install of remaining
+needed packages, and other final configuration.
+
+Mechanics of operation:
+-----------------------
+
+* In addition to actual files to be included, the repo has a simple [Vagrantfile](http://vagrantup.com) that imports a base distro and then:
+
+* All the content of homedir/ is rsync:ed over as-is to the home directory in the VM.
+Extending or configuring the SDE is therefore sometimes just a matter of adding files under homedir/ in exactly the relative location where they should end up.  *Send pull requests!*
+(A possible alternative in the future is to just keep all homedir content in another git repo and just git clone that to the home dir.)
+
+- In the final step, script.sh is run inside the VM for those steps that need to execute such as apt-get installs and any other scripted steps.
+
