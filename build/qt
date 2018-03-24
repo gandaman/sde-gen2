@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Copyright (C) 2018 GENIVI Alliance
+# LICENSE: MPLv2
+
 # For now install qt via package manager.
 # Using the latest qt from a downloaded package should be a
 # desirable improvement

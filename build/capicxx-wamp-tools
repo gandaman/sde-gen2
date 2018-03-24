@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Copyright (C) 2018 GENIVI Alliance
+# LICENSE: MPLv2
+
 # Annoyingly, there's no consistency to the binary archive name so here's a
 # little bit of config.  Everything else is generic, so we can delegate to
 # the core script.
