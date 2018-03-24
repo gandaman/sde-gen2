@@ -1,0 +1,4 @@
+If you have the binary graphics drivers Renesas R-Car under an appropriate
+license (for example downloaded the evaluation drivers with click-through
+license), you must place them manually here to build the SDK for R-Car.
+Without them, the SDK cannot be built.
