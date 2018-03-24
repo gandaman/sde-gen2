@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# For D-Feet, just install with the operating system package manager.
+
+apt-get install -y d-feet

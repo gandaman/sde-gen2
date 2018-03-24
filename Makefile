@@ -11,6 +11,7 @@ all:    \
 	capicxx-core-tools \
 	capicxx-dbus-tools \
 	capicxx-someip-tools \
+	d-feet \
 	dlt-viewer \
 	eclipse \
 	sdk \
@@ -32,6 +33,7 @@ capicxx-core-tools:   artifacts/capicxx-core-tools
 capicxx-dbus-tools:   artifacts/capicxx-dbus-tools
 capicxx-someip-tools: artifacts/capicxx-someip-tools
 capicxx-wamp-tools:   artifacts/capicxx-wamp-tools
+d-feet:               artifacts/d-feet
 dlt-viewer:           artifacts/dlt-viewer
 eclipse:              artifacts/eclipse
 sdk:                  artifacts/sdk
@@ -48,6 +50,9 @@ sde:                  staging
 # Therefore build scripts are required to only provide results in artifacts/ if
 # the build was fully successful.
 
+artifacts/d-feet:
+	build/d-feet && touch $@
+
 artifacts/dlt-viewer: material/dlt-viewer
 	build/dlt-viewer && touch $@
 
@@ -62,7 +67,6 @@ artifacts/capicxx-someip-tools: material/capicxx-someip-tools
 
 #artifacts/capicxx-wamp-tools: material/capicxx-wamp-tools
 #	build/capicxx-wamp-tools && touch $@
-
 
 artifacts/eclipse: material/eclipse
 	build/eclipse && touch $@
