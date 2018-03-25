@@ -21,10 +21,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    hostname = 'gdp-sde' if hostname == nil
 
    box = ENV['BOX']
-   box = "bionic64-server" if box == nil
+   box = "artful64-server" if box == nil
 
    box_url = ENV['BOX_URL']
-   box_url = "http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64-vagrant.box" if box_url == nil
+   box_url = "http://cloud-images.ubuntu.com/artful/current/artful-server-cloudimg-amd64-vagrant.box" if box_url == nil
 
    source_dir = ENV['SOURCE_DIR']
    source_dir = 'homedir/' if source_dir == nil
