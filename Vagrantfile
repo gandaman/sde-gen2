@@ -63,8 +63,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       "
 
    # Created/copied files, are owned by root after provisioning - fix that
-#   config.vm.provision :shell, inline:
-#      " sudo chown -R vagrant:vagrant /home/vagrant
+   config.vm.provision :shell, inline:
+      " sudo chown -R vagrant:vagrant /home/vagrant
 
 #      # Remove other users than vagrant -- makes things less confusing
 #      sudo deluser ubuntu   # Might fail but that is ok
