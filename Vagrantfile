@@ -18,13 +18,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    # Set defaults, or as defined by environment variables
 
    hostname = ENV['VMNAME']
-   hostname = 'ubuntu-system' if hostname == nil
+   hostname = 'gdp-sde' if hostname == nil
 
    box = ENV['BOX']
-   box = "trusty64" if box == nil
+   box = "bionic64-server" if box == nil
 
    box_url = ENV['BOX_URL']
-   box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box" if box_url == nil
+   box_url = "http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64-vagrant.box" if box_url == nil
 
    source_dir = ENV['SOURCE_DIR']
    source_dir = 'homedir/' if source_dir == nil
@@ -63,20 +63,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       "
 
    # Created/copied files, are owned by root after provisioning - fix that
-   config.vm.provision :shell, inline:
-      " sudo chown -R vagrant:vagrant /home/vagrant
+#   config.vm.provision :shell, inline:
+#      " sudo chown -R vagrant:vagrant /home/vagrant
 
-      # Remove other users than vagrant -- makes things less confusing
-      sudo deluser ubuntu   # Might fail but that is ok
-      true                  # Make sure Vagrant does not stop on error
-      "
+#      # Remove other users than vagrant -- makes things less confusing
+#      sudo deluser ubuntu   # Might fail but that is ok
+#      true                  # Make sure Vagrant does not stop on error
+#      "
 
    # Export the VM name to make it known (build artifact)
    ENV['VMNAME'] = vmname
 
    # Run final installation script, if it exists
    config.vm.provision :shell, inline:
-   " [ -f /vagrant/scripts/final_provisioning.sh ] && /vagrant/final_provisioning.sh
+   " [ -f /vagrant/scripts/final_provisioning.sh ] && /vagrant/scripts/final_provisioning.sh
      echo #{vmname} >/vagrant/VMNAME
    "
 end
