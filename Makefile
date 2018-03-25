@@ -14,10 +14,9 @@ all:    \
 	d-feet \
 	dlt-viewer \
 	eclipse \
-	sdk \
 	qt
 	qtcreator \
-	sde
+	sdk \
 
 # FIXME:capicxx-wamp-tools \
 
@@ -36,16 +35,20 @@ capicxx-wamp-tools:        artifacts/capicxx-wamp-tools
 d-feet:                    artifacts/d-feet
 dlt-viewer:                artifacts/dlt-viewer
 eclipse:                   artifacts/eclipse
-sdk:                       artifacts/sdk
 qt:                        artifacts/qt
 qtcreator:                 artifacts/qtcreator
-sde:                       staging
 sdk/minnowboard:           artifacts/sdk/minnowboard
 sdk/raspberrypi2:          artifacts/sdk/raspberrypi2
 sdk/raspberrypi3:          artifacts/sdk/raspberrypi3
 sdk/dragonboard-410c:      artifacts/sdk/dragonboard-410c
 sdk/r-car-m3-starter-kit:  artifacts/sdk/r-car-m3-starter-kit
 sdk/r-car-h3-starter-kit:  artifacts/sdk/r-car-h3-starter-kit
+
+# Convience target for all sdk variants
+sdkall:                    sdk/minnowboard sdk/raspberrypi2 sdk/raspberrypi3 sdk/dragonboard-410c sdk/r-car-m3-starter-kit sdk/r-car-h3-starter-kit
+
+# Creating the virtual machine image
+vm:                       artifacts/vm
 
 #dlt-viewer
 
@@ -104,6 +107,9 @@ artifacts/sdk/r-car-m3-starter-kit: material/sdk
 
 artifacts/sdk/r-car-h3-starter-kit: material/sdk
 	export TARGET=r-car-h3-starter-kit && build/sdk && touch $@
+
+artifacts/vm:
+	vagrant up --provision && touch $@
 
 #dlt-viewer: ../artifacts/dlt-viewer
 #	./dlt-viewer
